@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use WebDevBr\ArenaPHP\DaemonRules\Fight;
 use WebDevBr\ArenaPHP\Entity\Fighter;
+use WebDevBr\ArenaPHP\Battle;
 
 class BattleCommand extends Command
 {
@@ -62,72 +63,60 @@ class BattleCommand extends Command
 
         $output->writeln("==================");
 
-        $round = 1;
+        $battle = new Battle($fighter, $enemy);
+        $log = $battle->fight();
 
-        while ($fighter->life > 0) {
+        foreach ($log as $k=>$v) {
             $output->writeln("");
             $output->writeln("==================");
-            $output->writeln("Round {$round}... Fight!!!!");
+            $output->writeln("Round {$k}... Fight!!!!");
 
-            $fighter_attack_result = $attack_fighter->battle();
-
-            if ($fighter_attack_result === 1) {
-                $dano = $attack_fighter->damageWithoutWeapons();
-                $enemy->life -= $dano;
-                $output->writeln("Você causou {$dano} de dano ao inimigo!");
+            if ($v['battle']['fighter']['result'] === 1) {
+                $output->writeln(sprintf("Você causou %s de dano ao inimigo!", $v['battle']['fighter']['damage']));
             }
 
-            if ($fighter_attack_result === -1) {
-                $dano = $attack_fighter->damageWithoutWeapons()*2;
-                $fighter->life -= $dano;
-                $output->writeln("Você escorregou. Perca {$dano} de vida!");
+            if ($v['battle']['fighter']['result'] === -1) {
+                $output->writeln(sprintf("Você escorregou. Perca %s de vida!", $v['battle']['fighter']['damage']));
             }
 
-            if ($fighter_attack_result === 0) {
+            if ($v['battle']['fighter']['result'] === 0) {
                 $output->writeln("Você errou!");
             }
 
-            $enemy_attack_result = $attack_enemy->battle();
-
-            if ($enemy_attack_result === 1 and $enemy->life > 0) {
-                $dano = $attack_fighter->damageWithoutWeapons();
-                $fighter->life -= $dano;
-                $output->writeln("Seu inimigo acertou e você perdeu {$dano} de vida!");
+            if ($v['battle']['enemy']['result'] === 1) {
+                $output->writeln(sprintf("Seu inimigo acertou e você perdeu %s de vida!", $v['battle']['enemy']['damage']));
             }
 
-            if ($enemy_attack_result === -1 and $enemy->life > 0) {
-                $dano = $attack_fighter->damageWithoutWeapons()*2;
-                $enemy->life -= $dano;
-                $output->writeln("O inimigo escorregou e tomou {$dano} de vida");
+            if ($v['battle']['enemy']['result'] === -1) {
+                $output->writeln(sprintf("O inimigo escorregou e tomou %s de vida!", $v['battle']['enemy']['damage']));
             }
 
-            if ($enemy_attack_result === 0 and $enemy->life > 0) {
-                $output->writeln("Seu inimigo errou");
+            if ($v['battle']['enemy']['result'] === 0) {
+                $output->writeln("Seu inimigo errou!");
             }
 
             $output->writeln("------------------");
 
-            $output->writeln("Você está com ".$fighter->life." de vida");
-            $output->writeln("Seu inimigo está com ".$enemy->life." de vida");
-            $round++;
-
-            if ($enemy->life <= 0) {
-                break;
-            }
+            $output->writeln("Você está com ".$v['battle']['fighter']['life']." de vida");
+            $output->writeln("Seu inimigo está com ".$v['battle']['enemy']['life']." de vida");
         }
 
         $output->writeln("==================");
+        $output->writeln("==================");
+        $output->writeln("");
+        $output->writeln("");
+        $output->writeln("==================");
         $output->writeln("Resultado da luta!!!!");
 
-        if ($fighter->life <= 0) {
+        if ($v['battle']['fighter']['life'] <= 0) {
             $output->writeln("Você perdeu");
         }
 
-        if ($enemy->life <= 0 and $fighter->life > 0) {
+        if ($v['battle']['fighter']['life'] > 0) {
             $output->writeln("Você ganhou");
         }
 
-        if ($fighter->life <= 0 and $enemy->life <= 0) {
+        if ($v['battle']['fighter']['life'] <= 0 and $v['battle']['enemy']['life'] <= 0) {
             $output->writeln("A luta acabou em empate");
         }
     }
