@@ -77,7 +77,7 @@ class FighterCommand extends Command
         }
 
         if ($total and $strength and $agility and $constitution) {
-            $file = __DIR__.'/../../player/fighter.json';
+            $file = __DIR__.'/../../data/player/fighter.json';
             file_put_contents($file, json_encode($fighter->toArray()));
             $output->writeln('Seu lutador foi criado com sucesso!');
         }

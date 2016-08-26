@@ -19,8 +19,12 @@ abstract class System
         return 1;
     }
 
-    public function rollDice(int $faces, int $quantity = 1)
+    public function rollDice($faces, $quantity = 1)
     {
+        if (!is_int($faces) || !is_int($quantity)) {
+            throw new \Exception("Faces and quantity must be integers.");
+        }
+
         $total = 0;
         for ($i=0; $i < $quantity; $i++) {
             $total += rand(1, $faces);

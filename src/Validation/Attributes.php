@@ -16,21 +16,33 @@ class Attributes
         return $this;
     }
 
-    public function setMin(int $min)
+    public function setMin($min)
     {
-        $this->min = $min;
+        if (!is_int($min)) {
+            throw new \Exception("Minimum must be an integer.");
+        }
+
+        $this->min = (int) $min;
         return $this;
     }
 
-    public function setMax(int $max)
+    public function setMax($max)
     {
-        $this->max = $max;
+        if (!is_int($max)) {
+            throw new \Exception("Maximum must be an integer.");
+        }
+
+        $this->max = (int) $max;
         return $this;
     }
 
-    public function setTotal(int $total)
+    public function setTotal($total)
     {
-        $this->total = $total;
+        if (!is_int($total)) {
+            throw new \Exception("Total must be an integer.");
+        }
+
+        $this->total = (int) $total;
         return $this;
     }
 
@@ -48,8 +60,12 @@ class Attributes
         return true;
     }
 
-    public function checkMinMax(string $value)
+    public function checkMinMax($value)
     {
+        if (!is_string($value)) {
+            throw new \Exception("Value must be a string.");
+        }
+
         if ($this->fighter->$value > $this->max) {
             return false;
         }
